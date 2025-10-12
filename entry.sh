@@ -30,6 +30,11 @@ main()
         log_info "Use custom profile file: ${PROFILE_FILE_PATH}"
         source ${PROFILE_FILE_PATH}
     fi
+    
+    for f in $(find "${SCRIPT_DIR}" -type f -name '*_func.sh'); do
+        log_info "source $f"
+        source "$f"
+    done
 }
 
 main $@
