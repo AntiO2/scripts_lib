@@ -9,4 +9,9 @@ function install_trino()
     log_info "Success to install trino"
 }
 
+function trino_cli()
+{
+    ${TRINO_OPT}/./bin/trino --server ${TRINO_ADD} --catalog ${TRINO_CATALOG}
+}
+
 alias trino="${TRINO_OPT}/bin/launcher"
