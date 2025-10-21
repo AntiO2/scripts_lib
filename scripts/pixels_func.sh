@@ -1,6 +1,6 @@
 function check_pixels_env()
 {
-    
+ exit 0   
 }
 
 function install_pixels()
