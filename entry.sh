@@ -1,15 +1,7 @@
 #!/bin/bash
 
-SOURCE_PATH=`readlink -f $BASH_SOURCE` 2>/dev/null
-
-if [[ -z ${SOURCE_PATH} ]]; then
-    # for debug
-    SOURCE_PATH=`readlink -f $0`
-fi
-
-PROJECT_DIR=`dirname ${SOURCE_PATH}`
+PROJECT_DIR="$(cd "$(dirname "${(%):-%x}")" && pwd)"
 SCRIPT_DIR=${PROJECT_DIR}/scripts
-
 
 main()
 {
