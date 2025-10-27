@@ -21,3 +21,8 @@ function stop_pixels()
 {
     ${PIXELS_HOME}/sbin/stop-pixels.sh
 }
+
+function pixels_meta()
+{
+    docker exec -it pixels-mysql mysql -uroot -ppixels_root -Dpixels_metadata
+}
