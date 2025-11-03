@@ -9,7 +9,7 @@ function install_trino()
     log_info "Success to install trino"
 }
 
-function trino_cli()
+function trino_cli_2()
 {
     ${TRINO_OPT}/./bin/trino --server ${TRINO_ADD} --catalog ${TRINO_CATALOG}
 }
