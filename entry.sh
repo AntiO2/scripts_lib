@@ -1,6 +1,16 @@
 #!/bin/bash
 
-PROJECT_DIR="$(cd "$(dirname "${(%):-%x}")" && pwd)"
+if [ -n "$BASH_VERSION" ]; then
+    # Bash
+    PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+elif [ -n "$ZSH_VERSION" ]; then
+    # Zsh
+    PROJECT_DIR="$(cd "$(dirname "${(%):-%x}")" && pwd)"
+else
+    # Fall Back
+    PROJECT_DIR="$(cd "$(dirname "$0")" && pwd)"
+fi
+
 SCRIPT_DIR=${PROJECT_DIR}/scripts
 
 main()
