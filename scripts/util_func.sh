@@ -116,3 +116,79 @@ load_props() {
         export "$key"="$value"
     done < "$file"
 }
+
+parallel_executor() {
+    local file_path="$1"
+    local threads="${2:-8}"
+    
+    # 参数验证
+    if [[ -z "$file_path" ]]; then
+        log_fatal_exit "必须提供文件路径参数"
+    fi
+    
+    if [[ ! -f "$file_path" ]]; then
+        log_fatal_exit "文件 '$file_path' 不存在"
+    fi
+    
+    if ! [[ "$threads" =~ ^[1-9][0-9]*$ ]]; then
+        log_fatal_exit "线程数必须是正整数"
+    fi
+    
+    log_info "开始并行执行 文件: $file_path 线程数: $threads"
+    # 创建命名管道用于控制并发
+    local fifo_file
+    fifo_file=$(mktemp -u)
+    mkfifo "$fifo_file"
+    exec 3<>"$fifo_file"
+    rm -f "$fifo_file"
+    
+    # 初始化管道
+    for ((i=0; i<threads; i++)); do
+        echo >&3
+    done
+    
+    # 计数器
+    local success_count=0
+    local fail_count=0
+    local current_line=0
+    local total_lines
+    total_lines=$(wc -l < "$file_path" | tr -d ' ')
+    
+    # 读取文件并并行执行
+    while IFS= read -r command; do
+        ((current_line++))
+        
+        # 跳过空行
+        if [[ -z "$command" ]]; then
+            continue
+        fi
+        
+        log_info "[进度: $current_line/$total_lines] 执行: $command"
+        
+        # 控制并发
+        read -u 3
+        
+        # 在子进程中执行命令
+        {
+            if eval "$command"; then
+                log_info "[成功] $command"
+                ((success_count++))
+            else
+                log_warning "[失败] $command"
+                ((fail_count++))
+            fi
+            
+            # 释放一个并发槽位
+            echo >&3
+        } &
+        
+    done < "$file_path"
+    
+    # 等待所有后台任务完成
+    wait
+    
+    # 关闭文件描述符
+    exec 3>&-
+    
+    log_info "执行完成! 成功: $success_count 失败: $fail_count 总计: $total_lines"
+}
