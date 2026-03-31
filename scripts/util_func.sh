@@ -13,7 +13,14 @@ check_return() {
     return 0
 }
 
-
+get_prop() {
+  local prop_file="$1"
+  local prop_key="$2"
+  if [[ -f "$prop_file" ]]; then
+    # 匹配 key=value 格式，去掉前后的空格，并提取 value
+    grep "^${prop_key}=" "$prop_file" | cut -d'=' -f2- | xargs
+  fi
+}
 
 gen_dir_md5sum() {
     local md5dir_path=$1
